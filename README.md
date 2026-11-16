@@ -62,6 +62,11 @@ nix profile install github:Viruliant/reslv
 # Then from any project dir:
 cd ~/projects/my-sws-project
 reslv
+
+# Or in dev shell:
+nix develop
+cd ~/projects/my-sws-project
+reslv  # python3 has locked deps available
 ```
 
 ## Gotchas
