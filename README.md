@@ -1,5 +1,13 @@
 # flat_globe
 
+`nix run github:Viruliant/reslv` resolves `{{{path:...}}}` and `{{{var_str:...}}}` tags:
+
+- Finds `sws/sws.json` (lists `./coconuts/TestA.md`)
+- Reads `sws/coconuts/TestA.md.sws` → contains `{{{path:"./TestB.md"}}}`
+- Recurses into `sws/coconuts/TestB.md` → contains `{{{path:"./TestC.md"}}}`
+- Recurses into `sws/coconuts/TestC.md` → contains `{{{var_str:"some_str"}}}`
+- Writes the fully resolved content back to `sws/coconuts/TestA.md`
+
 Testbed for building a Python env from `requirements.bak.txt` with Nix +
 uv2nix.
 
