@@ -130,6 +130,9 @@ pkgs.stdenv.mkDerivation {
     # Create launcher that calls python -m reslv.reslv
     cat > $out/bin/reslv <<EOF
     #!${pkgs.runtimeShell}
+    # uv2nix patches the venv python with the original store path, so a copied
+    # venv still resolves site-packages to the original. Point it at the copy.
+    export PYTHONPATH="$SITE_PKGS"
     exec $out/bin/${projectName}-env/bin/python3 -m reslv.reslv "\$@"
     EOF
     chmod +x $out/bin/reslv
