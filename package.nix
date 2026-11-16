@@ -89,8 +89,8 @@ let
 
   # in pyproject.toml Must match:
   #   [project]
-  #   name = "flat_globe"
-  projectName = "flat_globe";
+  #   name = "rslv"
+  projectName = "rslv";
 
   # Build the runtime virtual environment
   # workspace.deps.default comes from pyproject.toml
@@ -113,40 +113,31 @@ pkgs.stdenv.mkDerivation {
   nativeBuildInputs = [
     appPythonEnv
   ];
-  # p2j + nbconvert need a writable HOME inside the build sandbox
-  # notebook + html are build artifacts, regenerated from the single
-  # source of truth (globe_vs_flat.py):
-  #   p2j -o -t globe_vs_flat.ipynb globe_vs_flat.py
-  #   jupyter nbconvert --to html --execute globe_vs_flat.ipynb
-  # bin/flat_globe-env/ = the full locked venv, namespaced (python3,
-  # python, jupyter, ipython, ...); nothing shadows the system python3.
-  # Suffixed -env so it can never collide with the flat_globe launcher.
-  # bin/flat_globe = wrapper that opens the generated report in the
-  # default browser (via xdg-open).
+  # bin/rslv-env/ = the full locked venv, namespaced (python3, python, etc.)
+  # reslv is pure Python — installed by copying into site-packages (no pip).
+  # nothing shadows the system python3.
+  # Suffixed -env so it can never collide with the rslv launcher.
   installPhase = ''
-    export HOME=$TMPDIR
+    mkdir -p $out/bin
+    # Make a writable copy of the venv (Nix store is read-only)
+    cp -a ${appPythonEnv} $out/bin/${projectName}-env
+    chmod -R u+w $out/bin/${projectName}-env
 
-    ${appPythonEnv}/bin/p2j -o -t globe_vs_flat.ipynb globe_vs_flat.py
-    ${appPythonEnv}/bin/jupyter-nbconvert --to html --execute globe_vs_flat.ipynb
+    # Install reslv (pure Python, no pip) — copy into site-packages
+    SITE_PKGS="$out/bin/${projectName}-env/lib/python3.12/site-packages"
+    cp -r reslv "$SITE_PKGS/"
 
-    mkdir -p $out/share/${projectName}
-    cp globe_vs_flat.html $out/share/${projectName}/globe_vs_flat.html
-
-    mkdir -p $out/bin/${projectName}-env
-    for f in ${appPythonEnv}/bin/*; do
-      ln -s "$f" "$out/bin/${projectName}-env/"
-    done
-
-    cat > $out/bin/${projectName} <<EOF
+    # Create launcher that calls python -m reslv.reslv
+    cat > $out/bin/reslv <<EOF
     #!${pkgs.runtimeShell}
-    exec ${pkgs.xdg-utils}/bin/xdg-open $out/share/${projectName}/globe_vs_flat.html "\$@"
+    exec $out/bin/${projectName}-env/bin/python3 -m reslv.reslv "\$@"
     EOF
-    chmod +x $out/bin/${projectName}
+    chmod +x $out/bin/reslv
   '';
 
   meta = with lib; {
-    description = "Globe vs flat Earth distance report, built from globe_vs_flat.py via uv2nix";
+    description = "Recursive file dependency resolver — resolves {{{path:...}}} and {{{var_str:...}}} tags";
     platforms = platforms.all;
-    mainProgram = "flat_globe";
+    mainProgram = "reslv";
   };
 }

@@ -46,19 +46,18 @@ gen_toml() {
     # deps=$(sed 's/^/"/; s/$/",/' "$in_file")
     cat > "$out_file" <<EOF
 [project]
-name = "flat_globe"
+name = "rslv"
 version = "0.1.0"
-description = "Add your description here"
+description = "Recursive file dependency resolver"
 requires-python = ">=3.12"
 dependencies = [
 $deps
 ]
+[project.scripts]
+reslv = "reslv.reslv:main"
+
 [tool.uv.sources]
-torch = { index = "pytorch-cpu" }
-[[tool.uv.index]]
-name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/cpu"
-explicit = true
+rslv = { path = ".", editable = true }
 EOF
     echo ">>> generated $out_file"
     # If output is pyproject.toml, generate lock file

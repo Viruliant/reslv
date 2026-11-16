@@ -1,4 +1,1 @@
-numpy == 1.26.4
-sympy
-jupyter
-p2j
+pydantic

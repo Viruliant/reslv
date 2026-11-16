@@ -1,5 +1,5 @@
 {
-  description = "flat_globe Python App with Nix and uv2nix";
+  description = "rslv — recursive file dependency resolver";
   inputs = {
     nixpkgs.url = "nixpkgs";
     flake-parts.url = "github:hercules-ci/flake-parts";
