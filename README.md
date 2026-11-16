@@ -32,16 +32,6 @@ nix run
 4. Resolves `{{{var_str:"name"}}}` tags from `--var NAME=VALUE` arguments
 5. Writes resolved output back to the original file
 
-## Gotchas
-
-- `package.nix` pins the pyproject-nix / uv2nix / build-system-pkgs git revs:
-  un-pinned `fetchGit` is an "unlocked" input and fails in pure evaluation
-  mode (`nix build`, `nix develop`). Bump revs deliberately.
-- `package.nix` `projectName = "reslv"` must match `pyproject.toml`
-  `[project] name`, which `update-lock.sh` hardcodes.
-- The namespaced venv lives at `bin/reslv-env/` (not `bin/reslv/`)
-  so it can't collide with the `reslv` launcher.
-
 ## Edit Python env
 
 Edit `requirements.bak.txt`, then regenerate:
@@ -59,3 +49,27 @@ nix build
 # 4. Run
 nix run
 ```
+
+## Install system-wide
+
+The `reslv` binary auto-discovers `sws/sws.json` from cwd upward, so it works
+from any project with an `sws/` subdir.
+
+```bash
+# Per-user (adds to ~/.nix-profile/bin)
+nix profile install github:Viruliant/reslv
+
+# Then from any project dir:
+cd ~/projects/my-sws-project
+reslv
+```
+
+## Gotchas
+
+- `package.nix` pins the pyproject-nix / uv2nix / build-system-pkgs git revs:
+  un-pinned `fetchGit` is an "unlocked" input and fails in pure evaluation
+  mode (`nix build`, `nix develop`). Bump revs deliberately.
+- `package.nix` `projectName = "reslv"` must match `pyproject.toml`
+  `[project] name`, which `update-lock.sh` hardcodes.
+- The namespaced venv lives at `bin/reslv-env/` (not `bin/reslv/`)
+  so it can't collide with the `reslv` launcher.
